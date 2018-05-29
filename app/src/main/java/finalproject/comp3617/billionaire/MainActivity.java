@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         btGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
+                Intent goToMap = new Intent(MainActivity.this, GameActivity.class);
                 startActivity(goToMap);
             }
         });
