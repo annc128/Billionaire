@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -13,7 +14,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.Toast;
 
 
@@ -26,6 +32,8 @@ public class GameActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        RelativeLayout gameRl = findViewById(R.id.gameRl);
+        TableLayout tl = findViewById(R.id.tl);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -40,7 +48,47 @@ public class GameActivity extends AppCompatActivity{
             // not required any runtime permission for below M
             tryToGetLocationValue();
         }
+        //get monitor height and width
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+        Toast.makeText(GameActivity.this, "手機銀幕大小為 " + metrics.widthPixels + " X " + metrics.heightPixels, Toast.LENGTH_SHORT).show();
+
+        for (int i = 0; i <= 2; i++) {
+            /* Create a new row to be added. */
+            TableRow tr = new TableRow(this);
+            tr.setLayoutParams(new TableRow.LayoutParams(metrics.widthPixels, metrics.heightPixels / 3));
+            /* Create a Button to be the row-content. */
+            for (int j = 0; j <= 3; j++) {
+                ImageView square = new ImageView(this);
+                TableRow.LayoutParams lp = new TableRow.LayoutParams(metrics.widthPixels / 4, metrics.heightPixels / 3);
+
+                if (i == 1 && (j == 1 || j == 2)) {
+                    square.setImageResource(R.drawable.ic_crop_square_24dp);
+                    square.setLayoutParams(lp);
+                    square.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_IN);
+                    tr.addView(square);
+                } else {
+                    square.setImageResource(R.drawable.ic_crop_square_24dp);
+                    square.setLayoutParams(lp);
+                    tr.addView(square);
+                }
+            }
+
+            /* Add row to TableLayout. */
+            //tr.setBackgroundResource(R.drawable.sf_gradient_03);
+            tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+        }
+        ImageView person = new ImageView(this);
+        float width = metrics.widthPixels;
+        person.setImageResource(R.drawable.ic_directions_walk_black_24dp);
+        person.setX(width / 4 / 2);
+        person.setY(metrics.heightPixels / 3 / 2);
+
+        gameRl.addView(person);
+        person.setX(width / 4 / 2 / 2 - 5);
+        person.setY(metrics.heightPixels / 3 / 2);
 
     }
     /**

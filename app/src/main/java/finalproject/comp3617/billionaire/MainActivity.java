@@ -25,7 +25,8 @@ public class MainActivity extends AppCompatActivity {
         int players = res.getInteger(R.integer.players);
 
         RadioGroup rgPlayers = (findViewById(R.id.rgPlayers));
-        Button btGo = (findViewById(R.id.btGo));
+        Button btGo = findViewById(R.id.btGo);
+        Button btMap = findViewById(R.id.btMap);
         final Spinner spTransportation = findViewById(R.id.spTransportation);
         final Spinner spMap = findViewById(R.id.spMap);
 
@@ -76,7 +77,14 @@ public class MainActivity extends AppCompatActivity {
         btGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToMap = new Intent(MainActivity.this, GameActivity.class);
+                Intent goToGame = new Intent(MainActivity.this, GameActivity.class);
+                startActivity(goToGame);
+            }
+        });
+        btMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
                 startActivity(goToMap);
             }
         });

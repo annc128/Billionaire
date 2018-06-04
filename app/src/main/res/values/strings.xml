@@ -6,12 +6,15 @@
     <string name="map">MAP</string>
     <string name="transportation">TRANSPORTATION</string>
     <string name="go">GO</string>
+    <string name="currency">CAD</string>
     <integer name="players">2</integer>
+
     <string-array name="transportations">
         <item>Walking</item>
         <item>Bycicle</item>
         <item>Skytrain</item>
     </string-array>
+
     <string-array name="maps">
         <item>Downtown Vancouver</item>
         <item>Skytrain route</item>

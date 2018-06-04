@@ -37,7 +37,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="CAD" />
+            android:hint="@string/currency"
+            android:inputType="numberDecimal" />
         <TextView
             android:id="@+id/tvTransportation"
             android:layout_width="match_parent"
@@ -74,6 +75,13 @@
             android:layout_weight="1"
             android:text="@string/go"
             tools:layout_width="wrap_content" />
+
+        <Button
+            android:id="@+id/btMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/map" />
     </LinearLayout>
 
 </LinearLayout>
