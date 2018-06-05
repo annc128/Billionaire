@@ -8,7 +8,12 @@
     tools:context=".GameActivity">
 
     <TableLayout
-        android:id="@+id/tl"
+        android:id="@+id/tlSquare"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TableLayout>
+
+    <TableLayout
+        android:id="@+id/tlText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></TableLayout>
 </RelativeLayout>

@@ -20,20 +20,32 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class GameActivity extends AppCompatActivity{
-
+    private float monitorWidth = 0;
+    private float monitorHeight = 0;
+    private ImageView person;
     private LocationManager locationManager;
     private String locationProvider;
     private static String TAG = "MAP";
+    private List<Map> listMaps;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         RelativeLayout gameRl = findViewById(R.id.gameRl);
-        TableLayout tl = findViewById(R.id.tl);
+        TableLayout tlSquare = findViewById(R.id.tlSquare);
+        TableLayout tlText = findViewById(R.id.tlSquare);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -51,44 +63,52 @@ public class GameActivity extends AppCompatActivity{
         //get monitor height and width
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
+        monitorWidth = metrics.widthPixels;
+        monitorHeight = metrics.heightPixels;
         Toast.makeText(GameActivity.this, "手機銀幕大小為 " + metrics.widthPixels + " X " + metrics.heightPixels, Toast.LENGTH_SHORT).show();
+        String jsonResponse = loadJSONFromAsset();
+        Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
 
+        listMaps = Arrays.asList(mapJsonResponse);
         for (int i = 0; i <= 2; i++) {
             /* Create a new row to be added. */
-            TableRow tr = new TableRow(this);
-            tr.setLayoutParams(new TableRow.LayoutParams(metrics.widthPixels, metrics.heightPixels / 3));
+            TableRow trSquare = new TableRow(this);
+            TableRow trText = new TableRow(this);
+            trSquare.setLayoutParams(new TableRow.LayoutParams(metrics.widthPixels, metrics.heightPixels / 3));
+            trText.setLayoutParams(new TableRow.LayoutParams(metrics.widthPixels, metrics.heightPixels / 3));
             /* Create a Button to be the row-content. */
             for (int j = 0; j <= 3; j++) {
                 ImageView square = new ImageView(this);
                 TableRow.LayoutParams lp = new TableRow.LayoutParams(metrics.widthPixels / 4, metrics.heightPixels / 3);
-
+                TextView text = new TextView(this);
+                text.setText(listMaps.get(i + j).getName());
                 if (i == 1 && (j == 1 || j == 2)) {
                     square.setImageResource(R.drawable.ic_crop_square_24dp);
                     square.setLayoutParams(lp);
                     square.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_IN);
-                    tr.addView(square);
+                    trSquare.addView(square);
                 } else {
                     square.setImageResource(R.drawable.ic_crop_square_24dp);
                     square.setLayoutParams(lp);
-                    tr.addView(square);
+                    trSquare.addView(square);
                 }
+                trText.addView(text);
             }
 
             /* Add row to TableLayout. */
             //tr.setBackgroundResource(R.drawable.sf_gradient_03);
-            tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+            tlSquare.addView(trSquare, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            tlText.addView(trText, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
 
         }
-        ImageView person = new ImageView(this);
-        float width = metrics.widthPixels;
+
+        person = new ImageView(this);
         person.setImageResource(R.drawable.ic_directions_walk_black_24dp);
-        person.setX(width / 4 / 2);
-        person.setY(metrics.heightPixels / 3 / 2);
+        person.setX(monitorWidth / 4 / 3);
+        person.setY(monitorHeight / 3 / 2);
 
         gameRl.addView(person);
-        person.setX(width / 4 / 2 / 2 - 5);
-        person.setY(metrics.heightPixels / 3 / 2);
 
     }
     /**
@@ -118,6 +138,11 @@ public class GameActivity extends AppCompatActivity{
             Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
             //如果位置發生變化,重新顯示
             showLocation(location);
+
+            if (truncateDouble(location.getLatitude()) == truncateDouble(listMaps.get(0).getLatitude()) && truncateDouble(location.getLongitude()) == truncateDouble(listMaps.get(0).getLongitude())) {
+                person.setX(monitorWidth / 4 / 2 / 2 - 5);
+                person.setY(monitorHeight / 3 / 2);
+            }
         }
     };
 
@@ -214,5 +239,39 @@ public class GameActivity extends AppCompatActivity{
         }
         //監視地理位置變化
         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+    }
+
+    private void mapParsedResponse() {
+        String jsonResponse = loadJSONFromAsset();
+        Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
+
+        List<Map> listMaps = Arrays.asList(mapJsonResponse);
+
+        for (Map map : listMaps) {
+            System.out.println("technicaljungle ---- Name -> " + map.getName()
+                    + " -- Latitude -- " + map.getLatitude() + "--- Longitude --" + map.getLongitude());
+        }
+    }
+
+    //Load JSON file from Assets folder.
+    private String loadJSONFromAsset() {
+        String json = null;
+        try {
+            InputStream is = getAssets().open("maps.json");
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
+    private double truncateDouble(double input) {
+        BigDecimal bd = new BigDecimal(input);
+        return bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 }
