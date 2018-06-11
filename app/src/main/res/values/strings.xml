@@ -7,6 +7,9 @@
     <string name="transportation">TRANSPORTATION</string>
     <string name="go">GO</string>
     <string name="currency">CAD</string>
+    <string name="email">Email</string>
+    <string name="facebook">Facebook</string>
+    <string name="google">Google</string>
     <integer name="players">2</integer>
 
     <string-array name="transportations">
@@ -16,9 +19,15 @@
     </string-array>
 
     <string-array name="maps">
+        <item>Please select a map</item>
         <item>Downtown Vancouver</item>
         <item>Skytrain route</item>
     </string-array>
 
-
+    <string name="loading">Loading…</string>
+    <string name="signed_in">Signed In</string>
+    <string name="signed_out">Signed Out</string>
+    <string name="emailpassword_status_fmt">Email User: %1$s (verified: %2$b)</string>
+    <string name="firebase_status_fmt">Firebase User: %s</string>
+    <string name="auth_failed">Authentication failed</string>
 </resources>

@@ -1,0 +1,66 @@
+{
+  "project_info": {
+    "project_number": "84631245738",
+    "firebase_url": "https://billionaire-8c680.firebaseio.com",
+    "project_id": "billionaire-8c680",
+    "storage_bucket": "billionaire-8c680.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:84631245738:android:476cab9273d686bb",
+        "android_client_info": {
+          "package_name": "finalproject.comp3617.billionaire"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "84631245738-543fv4ktp34m029nr30vafcedimaoagp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "finalproject.comp3617.billionaire",
+            "certificate_hash": "b7ef25af09dfb0bffee82cbdd54dbb1a23a6ebd6"
+          }
+        },
+        {
+          "client_id": "84631245738-dimpu00hsgncbkdiojqmdh46s1cfgqik.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "84631245738-dimpu00hsgncbkdiojqmdh46s1cfgqik.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA09ljN6PjLc6OOIZH8IE21ChNXp6EM99U"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "84631245738-dimpu00hsgncbkdiojqmdh46s1cfgqik.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "84631245738-55ba33l6k8ced3tt452nr5863ocfo1ge.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.gommmd.FirebaseJokes"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

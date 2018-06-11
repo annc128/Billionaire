@@ -65,12 +65,13 @@ public class MainActivity extends AppCompatActivity {
         spMap.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!spMap.getItemAtPosition(position).equals("Please select a map")) {
+                    Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
 
-                Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
-
-                goToMap.putExtra("MAP", spMap.getItemAtPosition(position).toString());
-                startActivity(goToMap);
-                Toast.makeText(MainActivity.this, "你選的是" + spMap.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                    goToMap.putExtra("MAP", spMap.getItemAtPosition(position).toString());
+                    startActivity(goToMap);
+                    Toast.makeText(MainActivity.this, "你選的是" + spMap.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
