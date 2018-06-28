@@ -3,8 +3,8 @@ package finalproject.comp3617.billionaire;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         btMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
+                Intent goToMap = new Intent(MainActivity.this, GameSceneActivity.class);
                 startActivity(goToMap);
             }
         });

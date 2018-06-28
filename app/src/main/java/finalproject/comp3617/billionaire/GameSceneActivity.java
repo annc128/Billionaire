@@ -11,13 +11,11 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,38 +24,29 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 
-
-public class GameActivity extends AppCompatActivity{
-    private ConstraintLayout gameCL;
-    private ConstraintSet constraintSet;
-    private ImageView ivMe;
-    private ImageButton ibtDice;
-    private int destination;
-    private int nowLocation;
+public class GameSceneActivity extends AppCompatActivity {
+    private float monitorWidth = 0;
+    private float monitorHeight = 0;
     private LocationManager locationManager;
     private String locationProvider;
-    private static String TAG = "MAP";
+    private ConstraintLayout gameScene;
     private List<Map> listMaps;
+    private ImageView me;
+    private static final String TAG = "GameScene";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        gameCL = findViewById(R.id.gameCl);
-        TextView tv1 = findViewById(R.id.tv1);
-        TextView tv2 = findViewById(R.id.tv2);
-        TextView tv3 = findViewById(R.id.tv3);
-        TextView tv4 = findViewById(R.id.tv4);
-        TextView tv5 = findViewById(R.id.tv5);
-        TextView tv6 = findViewById(R.id.tv6);
-        TextView tv7 = findViewById(R.id.tv7);
-        TextView tv8 = findViewById(R.id.tv8);
-        TextView tv9 = findViewById(R.id.tv9);
-        TextView tv10 = findViewById(R.id.tv10);
-        ibtDice = findViewById(R.id.ibtDice);
-
+        setContentView(R.layout.activity_game_scene);
+        gameScene = findViewById(R.id.gameScene);
+        //get monitor height and width
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        monitorWidth = metrics.widthPixels;
+        monitorHeight = metrics.heightPixels;
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 //Location Permission already granted or not
@@ -66,8 +55,7 @@ public class GameActivity extends AppCompatActivity{
                 //Request Location Permission
                 askLocationPermission();
             }
-        }
-        else {
+        } else {
             // not required any runtime permission for below M
             tryToGetLocationValue();
         }
@@ -76,47 +64,18 @@ public class GameActivity extends AppCompatActivity{
         Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
 
         listMaps = Arrays.asList(mapJsonResponse);
-        tv1.setText(listMaps.get(0).getName());
-        tv2.setText(listMaps.get(1).getName());
-        tv3.setText(listMaps.get(2).getName());
-        tv4.setText(listMaps.get(3).getName());
-        tv5.setText(listMaps.get(4).getName());
-        tv6.setText(listMaps.get(5).getName());
-        tv7.setText(listMaps.get(6).getName());
-        tv8.setText(listMaps.get(7).getName());
-        tv9.setText(listMaps.get(8).getName());
-        tv10.setText(listMaps.get(9).getName());
+        createSquare();
+        me = new ImageView(this);
+        me.setImageResource(R.drawable.ic_directions_walk_black_24dp);
 
-        ivMe = new ImageView(this);
-
-
-        ivMe.setImageResource(R.drawable.hello);
-        ivMe.setId(R.id.ivMe);
-        gameCL.addView(ivMe);
-        ivMe.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
-        ivMe.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
-
-        constraintSet = new ConstraintSet();
-//        constraintSet.clone(gameCL);
-//        constraintSet.connect(ivMe.getId(),ConstraintSet.BOTTOM,R.id.tv1,ConstraintSet.BOTTOM,8);
-//        constraintSet.connect(ivMe.getId(),ConstraintSet.END,R.id.tv1,ConstraintSet.END,8);
-//        constraintSet.connect(ivMe.getId(),ConstraintSet.START,R.id.tv1,ConstraintSet.START,8);
-//        constraintSet.connect(ivMe.getId(),ConstraintSet.TOP,R.id.tv1,ConstraintSet.TOP,8);
-//        constraintSet.applyTo(gameCL);
-        ibtDice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Random random = new Random();
-                destination = nowLocation + random.nextInt(6) + 1;
-                Toast.makeText(GameActivity.this, "your destination is " + listMaps.get(destination).getName(), Toast.LENGTH_LONG).show();
-                ibtDice.setVisibility(View.INVISIBLE);
-            }
-        });
-
-
-
+        me.setX(0);
+        me.setY(0);
+        gameScene.addView(me);
+        me.getLayoutParams().width = (int) monitorWidth / 4;
+        me.getLayoutParams().height = (int) monitorHeight / 3;
 
     }
+
     /**
      * LocationListern監聽器
      * 參數：地理位置提供器、監聽位置變化的時間間隔、位置變化的距離間隔、LocationListener監聽器
@@ -144,24 +103,27 @@ public class GameActivity extends AppCompatActivity{
             Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
             //如果位置發生變化,重新顯示
             showLocation(location);
-            if (destination == nowLocation) {
-                ibtDice.setVisibility(View.VISIBLE);
+
+            if (truncateDouble(location.getLatitude()) == truncateDouble(listMaps.get(1).getLatitude()) && truncateDouble(location.getLongitude()) == truncateDouble(listMaps.get(1).getLongitude())) {
+                me.setX((monitorWidth / 4) * 2);
+                me.setY(0);
+
             }
-            position(location);
         }
     };
 
     private void showLocation(Location location) {
-        Log.d(TAG,"定位成功------->"+"location------>經度為：" + location.getLatitude() + "\n緯度為" + location.getLongitude());
+        Log.d(TAG, "定位成功------->" + "location------>經度為：" + location.getLatitude() + "\n緯度為" + location.getLongitude());
     }
 
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
     private void askLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
@@ -171,13 +133,13 @@ public class GameActivity extends AppCompatActivity{
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION );
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
             }
         }
     }
 
-    private void showAlert(){
+    private void showAlert() {
         new AlertDialog.Builder(this)
                 .setTitle("Location Permission Needed")
                 .setMessage("This app needs the Location permission, please accept to use location functionality")
@@ -185,13 +147,14 @@ public class GameActivity extends AppCompatActivity{
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         //Prompt the user once explanation has been shown to ask for permission again
-                        ActivityCompat.requestPermissions(GameActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                MY_PERMISSIONS_REQUEST_LOCATION );
+                        ActivityCompat.requestPermissions(GameSceneActivity.this,
+                                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSIONS_REQUEST_LOCATION);
                     }
                 })
                 .create()
                 .show();
+
     }
 
     @Override
@@ -204,7 +167,7 @@ public class GameActivity extends AppCompatActivity{
                     // permission is granted
                     // location-related task you need to do.
                     if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 //                        tryToGetLocationValue();
                     }
                 } else {
@@ -215,7 +178,8 @@ public class GameActivity extends AppCompatActivity{
             }
         }
     }
-    private void tryToGetLocationValue(){
+
+    private void tryToGetLocationValue() {
         locationManager = (LocationManager) getSystemService(getApplicationContext().LOCATION_SERVICE);
 
 
@@ -229,7 +193,7 @@ public class GameActivity extends AppCompatActivity{
         //從可用的位置提供器中，匹配以上標準的最佳提供器
         locationProvider = locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "onCreate: 沒有權限 ");
             return;
@@ -245,16 +209,37 @@ public class GameActivity extends AppCompatActivity{
         locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
     }
 
-    private void mapParsedResponse() {
-        String jsonResponse = loadJSONFromAsset();
-        Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
+    private void move(ImageView iv) {
+        iv.setX(iv.getPivotX() + 10);
+        iv.setY(iv.getPivotY() + 10);
+    }
 
-        List<Map> listMaps = Arrays.asList(mapJsonResponse);
+    private void createSquare() {
+        Iterator<Map> it = listMaps.iterator();
+        for (int z = 0; z < 12; z++) {
+            ImageView square = new ImageView(this);
+            TextView name = new TextView(this);
+            square.setImageResource(R.drawable.ic_square);
+            int x = Integer.parseInt(String.format("%4s", Integer.toBinaryString(z)).replace(' ', '0').substring(2, 4), 2);
+            int y = Integer.parseInt(String.format("%4s", Integer.toBinaryString(z)).replace(' ', '0').substring(0, 2), 2);
 
-        for (Map map : listMaps) {
-            System.out.println("technicaljungle ---- Name -> " + map.getName()
-                    + " -- Latitude -- " + map.getLatitude() + "--- Longitude --" + map.getLongitude());
+            if (!(y == 1 && (x == 1 || x == 2))) {
+                Log.d("Fuck", x + " " + y);
+                name.setX((monitorWidth / 4) * x);
+                name.setY((monitorHeight / 3) * y + (monitorHeight / 3) / 2);
+                if (it.hasNext()) {
+                    name.setText(it.next().getName());
+                }
+
+                square.setX((monitorWidth / 4) * x);
+                square.setY((monitorHeight / 3) * y);
+                gameScene.addView(square);
+                gameScene.addView(name);
+                square.getLayoutParams().width = (int) monitorWidth / 4;
+                square.getLayoutParams().height = (int) monitorHeight / 3 - 20;
+            }
         }
+
     }
 
     //Load JSON file from Assets folder.
@@ -279,55 +264,7 @@ public class GameActivity extends AppCompatActivity{
         return bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
-    private void position(Location location) {
-        int myId = 0;
-        for (int i = 0; i < listMaps.size(); i++) {
-            if (truncateDouble(location.getLatitude()) == truncateDouble(listMaps.get(i).getLatitude()) && truncateDouble(location.getLongitude()) == truncateDouble(listMaps.get(i).getLongitude())) {
-                nowLocation = i;
-                switch (i) {
-
-                    case 0:
-                        myId = R.id.tv1;
-
-                        break;
-                    case 1:
-                        myId = R.id.tv2;
-                        break;
-                    case 2:
-                        myId = R.id.tv3;
-                        break;
-                    case 3:
-                        myId = R.id.tv4;
-                        break;
-                    case 4:
-                        myId = R.id.tv5;
-                        break;
-                    case 5:
-                        myId = R.id.tv6;
-                        break;
-                    case 6:
-                        myId = R.id.tv7;
-                        break;
-                    case 7:
-                        myId = R.id.tv8;
-                        break;
-                    case 8:
-                        myId = R.id.tv9;
-                        break;
-                    case 9:
-                        myId = R.id.tv10;
-                        break;
-
-                }
-                constraintSet.clone(gameCL);
-                constraintSet.connect(ivMe.getId(), ConstraintSet.BOTTOM, myId, ConstraintSet.BOTTOM, 8);
-                constraintSet.connect(ivMe.getId(), ConstraintSet.END, myId, ConstraintSet.END, 8);
-                constraintSet.connect(ivMe.getId(), ConstraintSet.START, myId, ConstraintSet.START, 8);
-                constraintSet.connect(ivMe.getId(), ConstraintSet.TOP, myId, ConstraintSet.TOP, 8);
-                constraintSet.applyTo(gameCL);
-            }
-        }
+    private void changeLocation() {
 
     }
-
 }
