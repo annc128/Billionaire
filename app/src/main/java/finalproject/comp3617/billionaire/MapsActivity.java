@@ -3,7 +3,6 @@ package finalproject.comp3617.billionaire;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -19,8 +18,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -112,8 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                                    Intent goToGame = new Intent(MapsActivity.this, GameActivity.class);
-                                    startActivity(goToGame);
+
                                 }
                             })
                             .setMessage("Do you want to set " + marker.getTitle() + " as end point?").create();

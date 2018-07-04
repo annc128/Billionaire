@@ -7,8 +7,6 @@ import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 
 public class MapJsonResponse {
     Context context;

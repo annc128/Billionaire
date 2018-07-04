@@ -3,7 +3,6 @@ package finalproject.comp3617.billionaire;
 import android.app.FragmentManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

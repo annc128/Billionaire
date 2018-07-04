@@ -1,21 +1,18 @@
 package finalproject.comp3617.billionaire;
 
+import android.Manifest;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.Manifest;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -149,18 +146,17 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
         locationManager = (LocationManager) getSystemService(getApplicationContext().LOCATION_SERVICE);
 
         Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);//低精度，如果設置為高精度，依然獲取不了location。
-        criteria.setAltitudeRequired(false);//不要求海拔
-        criteria.setBearingRequired(false);//不要求方位
-        criteria.setCostAllowed(true);//允許有花費
-        criteria.setPowerRequirement(Criteria.POWER_LOW);//低功耗
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setAltitudeRequired(false);
+        criteria.setBearingRequired(false);
+        criteria.setCostAllowed(true);
+        criteria.setPowerRequirement(Criteria.POWER_LOW);
 
-        //從可用的位置提供器中，匹配以上標準的最佳提供器
         locationProvider = locationManager.getBestProvider(criteria, true);
         if (ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "onCreate: 沒有權限 ");
+            Log.d(TAG, "onCreate: doesn't have permission");
             return;
         }
         Location location = locationManager.getLastKnownLocation(locationProvider);
@@ -168,7 +164,6 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
         if (location != null) {
             Log.d(TAG, "onCreate: location");
         }
-        //監視地理位置變化
         locationManager.requestLocationUpdates(locationProvider, 0, 0, createLocationListener());
     }
 

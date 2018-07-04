@@ -42,4 +42,7 @@
     <string name="nickname">Nickname</string>
     <string name="invitecode">InviteCode</string>
     <string name="play_mode">Play Mode</string>
+    <string name="host_name">Host name</string>
+    <string name="invite_code">Invite code</string>
+    <string name="inviting_line">Let\'s play billionaire</string>
 </resources>

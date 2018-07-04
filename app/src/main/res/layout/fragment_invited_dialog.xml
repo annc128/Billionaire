@@ -12,7 +12,7 @@
         android:layout_centerInParent="true"
         android:ems="10"
         android:inputType="textPersonName"
-        android:hint="Host name" />
+        android:hint="@string/host_name" />
 
     <EditText
         android:id="@+id/etInvited"
@@ -21,6 +21,6 @@
         android:layout_below="@+id/etHost"
         android:layout_centerHorizontal="true"
         android:ems="10"
-        android:hint="Invite code"
+        android:hint="@string/invite_code"
         android:inputType="textPassword" />
 </RelativeLayout>

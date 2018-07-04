@@ -2,10 +2,10 @@ package finalproject.comp3617.billionaire;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,10 +15,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Random;
-
 public class GameMultiActivity extends GameBaseActivity {
-    User user_me;
     User user_enemy = new User();
     private String inviteCode;
     private boolean isWaiting;
@@ -29,6 +26,7 @@ public class GameMultiActivity extends GameBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Resources res = getResources();
         isHost = getIntent().getBooleanExtra("ISHOST", false);
         inviteCode = getIntent().getStringExtra("INVITECODE");
         myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
@@ -58,7 +56,7 @@ public class GameMultiActivity extends GameBaseActivity {
             checkGuestIn();
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Let's play billionaire");
+            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.inviting_line));
             intent.putExtra(Intent.EXTRA_TEXT, "Host Name:" + host + "\nInvite Code:" + inviteCode);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivity(intent);

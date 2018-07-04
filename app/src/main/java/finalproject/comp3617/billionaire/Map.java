@@ -11,18 +11,7 @@ public class Map implements Serializable {
     private double latitude;
     @SerializedName("longitude")
     private double longitude;
-//
-//    public void setName(String name){
-//        this.name = name;
-//    }
-//
-//    public void setLatitude(double latitude){
-//        this.latitude = latitude;
-//    }
-//
-//    public void setLongitude(double longitude){
-//        this.longitude = longitude;
-//    }
+
 
     public String getName() {
         return this.name;
@@ -36,13 +25,4 @@ public class Map implements Serializable {
         return this.longitude;
     }
 
-//    @Override
-//    public  String toString(){
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("\"name\": ").append(name).append(",\n")
-//                .append("\"latitude\": ").append(latitude).append(",\n")
-//                .append("\"longitude\": ").append(longitude).append('\n');
-//
-//        return sb.toString();
-//    }
 }
