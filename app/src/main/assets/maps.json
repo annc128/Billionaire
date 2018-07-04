@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Waterfront",
+    "latitude": 49.285830,
+    "longitude": -123.111933
+  },
+  {
+    "name": "Vancouver City Centre",
+    "latitude": 49.282462,
+    "longitude": -123.118491
+  },
+  {
+    "name": "Yaletown–Roundhouse",
+    "latitude": 49.274542,
+    "longitude": -123.121817
+  },
+  {
+    "name": "Olympic Village",
+    "latitude": 49.266512,
+    "longitude": -123.115738
+  },
+  {
+    "name": "Broadway-City Hall",
+    "latitude": 49.262916,
+    "longitude": -123.114496
+  },
+  {
+    "name": "King Edward",
+    "latitude": 49.249480,
+    "longitude": -123.115830
+  },
+  {
+    "name": "Oakridge–41st Avenue",
+    "latitude": 49.233143,
+    "longitude": -123.116648
+  },
+  {
+    "name": "Langara–49th Avenue",
+    "latitude": 49.226370,
+    "longitude": -123.116088
+  },
+  {
+    "name": "Marine Drive",
+    "latitude": 49.209574,
+    "longitude": -123.116907
+  },
+  {
+    "name": "Bridgeport",
+    "latitude": 49.195564,
+    "longitude": -123.126037
+  }
+]
