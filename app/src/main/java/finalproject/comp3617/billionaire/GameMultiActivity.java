@@ -24,13 +24,16 @@ public class GameMultiActivity extends GameBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!isHost) {
+            myRef.child(host).child("user2").child("userID").setValue(uid);
+        }
 
         inviteCode = getIntent().getStringExtra("INVITECODE");
         myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
-                if (value.equals("waiting")) {
+                if (value.equals("waiting") && isHost) {
                     isWaiting = true;
                     Intent intent = new Intent(Intent.ACTION_SENDTO);
                     intent.setData(Uri.parse("mailto:")); // only email apps should handle this
@@ -83,7 +86,7 @@ public class GameMultiActivity extends GameBaseActivity {
             @Override
             public void onLocationChanged(Location location) {
                 Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
-                if (isWaiting) {
+                if (isHost && isWaiting) {
                     checkGuestIn();
                 }
                 myRef.child(host).child(refMe).child("latitude").setValue(location.getLatitude());
@@ -226,9 +229,9 @@ public class GameMultiActivity extends GameBaseActivity {
                     isWaiting = true;
                 } else {
                     isWaiting = false;
-                    tvInfo.setText("waiting for another player!");
-//                    ibtDice.setVisibility(View.VISIBLE);
-//                    tvInfo.setVisibility(View.INVISIBLE);
+                    ibtDice.setVisibility(View.VISIBLE);
+                    tvInfo.setVisibility(View.INVISIBLE);
+
                 }
             }
 

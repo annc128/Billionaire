@@ -79,28 +79,30 @@ public class GameSingleActivity extends GameBaseActivity {
                             Log.w(TAG, "Failed to read value.", error.toException());
                         }
                     });
-
-                    Random random = new Random();
-                    ibtDice.setVisibility(View.VISIBLE);
-                    tvInfo.setVisibility(View.INVISIBLE);
-                    enemyLastLocation = enemyLocation;
-                    enemyLocation += random.nextInt(6) + 1;
-                    enemyLocation = checkIfNull(enemyLocation);
-                    checkToll("pig");
-                    myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String value = dataSnapshot.getValue(String.class);
-                            if (value.equals("")) {
-                                myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").setValue("pig");
+                    if (!isFinished) {
+                        Random random = new Random();
+                        ibtDice.setVisibility(View.VISIBLE);
+                        tvInfo.setVisibility(View.INVISIBLE);
+                        enemyLastLocation = enemyLocation;
+                        enemyLocation += random.nextInt(6) + 1;
+                        enemyLocation = checkIfNull(enemyLocation);
+                        checkToll("pig");
+                        myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String value = dataSnapshot.getValue(String.class);
+                                if (value.equals("")) {
+                                    myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").setValue("pig");
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-                            Log.w(TAG, "Failed to read value.", error.toException());
-                        }
-                    });
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                Log.w(TAG, "Failed to read value.", error.toException());
+                            }
+                        });
+                    }
+
 
                 }
             }

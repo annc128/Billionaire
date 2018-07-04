@@ -97,7 +97,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/go"
+        android:text="I have Invite code"
         tools:layout_width="wrap_content" />
 
     <Button
@@ -105,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/map" />
+        android:text="@string/go" />
 
 
 </LinearLayout>
