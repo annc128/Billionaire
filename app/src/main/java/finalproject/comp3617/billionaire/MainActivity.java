@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
                 }
                 Toast.makeText(MainActivity.this, warning, Toast.LENGTH_SHORT).show();
 
-                if (!etNickname.getText().toString().equals("") && (mode != -1) && ((mode == 1) && !inviteCode.equals("")) && (isMapSelected) && !etMoney.getText().toString().equals("")) {
+                if (!etNickname.getText().toString().equals("") && ((mode != -1) || ((mode == 1) && !inviteCode.equals(""))) && (isMapSelected) && !etMoney.getText().toString().equals("")) {
                     Class<?> cls = null;
                     double iniMoney = Double.parseDouble(etMoney.getText().toString());
                     User user1 = new User(uid, 0, 0, iniMoney);
@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
                     Intent goToGame = new Intent(MainActivity.this, cls);
                     goToGame.putExtra("HOST", etNickname.getText().toString());
                     goToGame.putExtra("INVITECODE", etCode.getText().toString());
+                    goToGame.putExtra("MONEY", iniMoney);
                     goToGame.putExtra("MAP", myMap);
                     goToGame.putExtra("ISHOST", true);
                     startActivity(goToGame);

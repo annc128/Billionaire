@@ -18,16 +18,13 @@ import com.google.firebase.database.ValueEventListener;
 public class GameMultiActivity extends GameBaseActivity {
     User user_enemy = new User();
     private String inviteCode;
-    private boolean isWaiting;
-    private boolean isHost;
-    private String refMe;
-    private String refEnemy;
+    private boolean isWaiting = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Resources res = getResources();
-        isHost = getIntent().getBooleanExtra("ISHOST", false);
+
         inviteCode = getIntent().getStringExtra("INVITECODE");
         myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
             @Override
@@ -35,6 +32,13 @@ public class GameMultiActivity extends GameBaseActivity {
                 String value = dataSnapshot.getValue(String.class);
                 if (value.equals("waiting")) {
                     isWaiting = true;
+                    Intent intent = new Intent(Intent.ACTION_SENDTO);
+                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                    intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.inviting_line));
+                    intent.putExtra(Intent.EXTRA_TEXT, "Host Name:" + host + "\nInvite Code:" + inviteCode);
+                    if (intent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(intent);
+                    }
                 }
             }
 
@@ -54,13 +58,7 @@ public class GameMultiActivity extends GameBaseActivity {
 
         if (isHost && isWaiting) {
             checkGuestIn();
-            Intent intent = new Intent(Intent.ACTION_SENDTO);
-            intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-            intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.inviting_line));
-            intent.putExtra(Intent.EXTRA_TEXT, "Host Name:" + host + "\nInvite Code:" + inviteCode);
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                startActivity(intent);
-            }
+
         }
     }
 
@@ -90,6 +88,30 @@ public class GameMultiActivity extends GameBaseActivity {
                 }
                 myRef.child(host).child(refMe).child("latitude").setValue(location.getLatitude());
                 myRef.child(host).child(refMe).child("longitude").setValue(location.getLongitude());
+                myRef.child(host).child(refMe).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User value = dataSnapshot.getValue(User.class);
+                        tvMyMoney.setText(Double.toString(value.getMoney()));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.w(TAG, "Failed to read value.", error.toException());
+                    }
+                });
+                myRef.child(host).child(refEnemy).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        User value = dataSnapshot.getValue(User.class);
+                        tvEnemyMoney.setText(Double.toString(value.getMoney()));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Log.w(TAG, "Failed to read value.", error.toException());
+                    }
+                });
                 position(location);
                 enemyPosition();
 
@@ -98,7 +120,7 @@ public class GameMultiActivity extends GameBaseActivity {
                     tvInfo.setText(listMaps.get(destination).getName());
                     ibtDice.setVisibility(View.INVISIBLE);
                     tvInfo.setVisibility(View.VISIBLE);
-                } else if (starting == true && destination == nowLocation) {
+                } else if (starting == true && destination == nowLocation && enemyLocation == destination) {
                     Toast.makeText(GameMultiActivity.this, "Ready to go!", Toast.LENGTH_SHORT).show();
                     ibtDice.setVisibility(View.VISIBLE);
                     tvInfo.setVisibility(View.INVISIBLE);
@@ -204,8 +226,9 @@ public class GameMultiActivity extends GameBaseActivity {
                     isWaiting = true;
                 } else {
                     isWaiting = false;
-                    ibtDice.setVisibility(View.VISIBLE);
-                    tvInfo.setVisibility(View.INVISIBLE);
+                    tvInfo.setText("waiting for another player!");
+//                    ibtDice.setVisibility(View.VISIBLE);
+//                    tvInfo.setVisibility(View.INVISIBLE);
                 }
             }
 

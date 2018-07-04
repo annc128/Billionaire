@@ -20,6 +20,7 @@ public class GameSingleActivity extends GameBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_game_single);
+
     }
 
     @Override
@@ -45,6 +46,8 @@ public class GameSingleActivity extends GameBaseActivity {
                 Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
                 position(location);
                 enemyPosition();
+                tvMyMoney.setText(Double.toString(myMoney));
+                tvEnemyMoney.setText(Double.toString(enemyMoney));
 
                 // Check if the player is at the starting point
                 if (starting == true && destination != nowLocation) {
@@ -54,6 +57,7 @@ public class GameSingleActivity extends GameBaseActivity {
                     Toast.makeText(GameSingleActivity.this, "Ready to go!", Toast.LENGTH_SHORT).show();
                     ibtDice.setVisibility(View.VISIBLE);
                     tvInfo.setVisibility(View.INVISIBLE);
+                    enemyLocation = 0;
                     starting = false;
                 }
 
@@ -88,7 +92,7 @@ public class GameSingleActivity extends GameBaseActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             String value = dataSnapshot.getValue(String.class);
                             if (value.equals("")) {
-                                myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").setValue(uid);
+                                myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").setValue("pig");
                             }
                         }
 
@@ -97,7 +101,7 @@ public class GameSingleActivity extends GameBaseActivity {
                             Log.w(TAG, "Failed to read value.", error.toException());
                         }
                     });
-                    enemyPosition();
+
                 }
             }
         };
@@ -119,12 +123,15 @@ public class GameSingleActivity extends GameBaseActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String value = dataSnapshot.getValue(String.class);
+
                     if (!value.equals("") && !value.equals(uid) && person.equals("me")) {
                         myMoney -= 100;
-                        Log.d(TAG, Double.toString(myMoney));
+
+                        Toast.makeText(GameSingleActivity.this, "Your Money:" + Double.toString(myMoney), Toast.LENGTH_SHORT).show();
                     } else if (!value.equals("") && !value.equals("pig") && person.equals("pig")) {
                         enemyMoney -= 100;
-                        Log.d(TAG, Double.toString(enemyMoney));
+
+                        Toast.makeText(GameSingleActivity.this, "Money of Enemy:" + Double.toString(enemyMoney), Toast.LENGTH_SHORT).show();
                     }
                 }
 

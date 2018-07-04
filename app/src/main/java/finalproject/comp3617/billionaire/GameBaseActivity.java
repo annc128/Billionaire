@@ -48,20 +48,24 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
     protected ConstraintSet constraintSet;
     protected ImageView ivMe, ivEnemy;
     protected ImageButton ibtDice;
-    protected TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7, tv8, tv9, tv10, tvInfo;
+    protected TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7, tv8, tv9, tv10, tvInfo, tvMyMoney, tvEnemyMoney;
     protected int destination = 0;
     protected int lastLocation;
     protected int nowLocation = -1;
-    protected int enemyLocation = 0;
+    protected int enemyLocation = -1;
     protected int enemyLastLocation = 0;
-    protected double myMoney = 1000;
-    protected double enemyMoney = 1000;
+    protected double myMoney;
+    protected double enemyMoney;
     protected boolean starting = true;
+    protected boolean isHost;
+    protected boolean isFinished;
     protected LocationManager locationManager;
     protected String locationProvider;
     protected String uid;
     protected String host;
-    static protected String myMap = "???";
+    protected String refMe;
+    protected String refEnemy;
+    static protected String myMap;
 
     protected static String TAG = "MAP";
     protected List<Map> listMaps;
@@ -75,6 +79,17 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
         host = getIntent().getStringExtra("HOST");
 
         myMap = getIntent().getStringExtra("MAP");
+        isHost = getIntent().getBooleanExtra("ISHOST", false);
+        if (isHost) {
+            refMe = "user1";
+            refEnemy = "user2";
+        } else {
+            refMe = "user2";
+            refEnemy = "user1";
+        }
+        double iniMoney = getIntent().getDoubleExtra("MONEY", 0);
+        myMoney = iniMoney;
+        enemyMoney = iniMoney;
         findView();
         methodRequiresPermission();
         attachCharacter();
@@ -89,6 +104,8 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
 
 
         setValuesToView();
+        tvMyMoney.setText(Double.toString(iniMoney));
+        tvEnemyMoney.setText(Double.toString(iniMoney));
 
         constraintSet = new ConstraintSet();
         ibtDice.setOnClickListener(new View.OnClickListener() {
@@ -164,7 +181,10 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
         if (location != null) {
             Log.d(TAG, "onCreate: location");
         }
-        locationManager.requestLocationUpdates(locationProvider, 0, 0, createLocationListener());
+        if (!isFinished) {
+            locationManager.requestLocationUpdates(locationProvider, 0, 0, createLocationListener());
+        }
+
     }
 
     protected abstract LocationListener createLocationListener();
@@ -181,6 +201,8 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
         tv8 = findViewById(R.id.tv8);
         tv9 = findViewById(R.id.tv9);
         tv10 = findViewById(R.id.tv10);
+        tvMyMoney = findViewById(R.id.tvMyMoney);
+        tvEnemyMoney = findViewById(R.id.tvEnemyMoney);
         tvInfo = findViewById(R.id.tvInfo);
         ibtDice = findViewById(R.id.ibtDice);
     }
@@ -269,20 +291,22 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
                 myId = R.id.tv10;
                 break;
         }
+        if (myId == R.id.tv10 && (!starting)) {
+            myId = R.id.parent;
+            im.getLayoutParams().height = 1000;
+            im.getLayoutParams().width = 1000;
+            isFinished = true;
+            ibtDice.setVisibility(View.INVISIBLE);
+            //Toast.makeText(GameBaseActivity.this, "finished", Toast.LENGTH_SHORT).show();
+
+        }
         constraintSet.clone(gameCL);
         constraintSet.connect(im.getId(), ConstraintSet.BOTTOM, myId, ConstraintSet.BOTTOM, 8);
         constraintSet.connect(im.getId(), ConstraintSet.END, myId, ConstraintSet.END, 8);
         constraintSet.connect(im.getId(), ConstraintSet.START, myId, ConstraintSet.START, 8);
         constraintSet.connect(im.getId(), ConstraintSet.TOP, myId, ConstraintSet.TOP, 8);
         constraintSet.applyTo(gameCL);
-        if (myId == R.id.tv10 && (!starting)) {
-            try {
-                Thread.sleep(2000);
-                Toast.makeText(GameBaseActivity.this, "finished", Toast.LENGTH_SHORT).show();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 
     protected abstract void checkToll(final String person);
@@ -296,7 +320,8 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
-        myRef.child(host).child("user1").addListenerForSingleValueEvent(new ValueEventListener() {
+        myMoney -= 100;
+        myRef.child(host).child(refMe).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User value = dataSnapshot.getValue(User.class);
@@ -304,7 +329,7 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
                 double money_now = value.getMoney() - (double) 100;
                 Log.d(TAG, Double.toString(money_now));
                 value.setMoney(money_now);
-                myRef.child(host).child("user1").setValue(value);
+                myRef.child(host).child(refMe).setValue(value);
             }
 
             @Override
@@ -313,10 +338,12 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
             }
         });
         myRef.child(host).child("maps").child(Integer.toString(nowLocation)).child("owner").setValue(uid);
+        enemyPosition();
     }
 
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
+        enemyPosition();
         dialog.dismiss();
     }
 }
