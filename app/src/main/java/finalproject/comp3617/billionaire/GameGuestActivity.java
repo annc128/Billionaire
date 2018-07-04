@@ -146,9 +146,11 @@ public class GameGuestActivity extends GameBaseActivity {
             }
         });
         for (int i = 0; i < listMaps.size(); i++) {
-//            if (user_enemy.getLatitude() == 0 && user_enemy.getLongitude() == 0) {
-//                ivEnemy.setVisibility(View.INVISIBLE);
-//            }
+            if (user_enemy.getLatitude() == 0 && user_enemy.getLongitude() == 0) {
+                ivEnemy.setVisibility(View.INVISIBLE);
+            } else {
+                ivEnemy.setVisibility(View.VISIBLE);
+            }
             if (truncateDouble(user_enemy.getLatitude()) == truncateDouble(listMaps.get(i).getLatitude()) && truncateDouble(user_enemy.getLongitude()) == truncateDouble(listMaps.get(i).getLongitude())) {
                 enemyLocation = i;
                 moveCharacter(ivEnemy, i);

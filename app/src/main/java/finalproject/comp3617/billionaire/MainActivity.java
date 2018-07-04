@@ -3,14 +3,10 @@ package finalproject.comp3617.billionaire;
 
 import android.content.Intent;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,15 +14,8 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appinvite.AppInviteInvitation;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -35,17 +24,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements InvitedDialog.InviteInputListener {
     private static final String TAG = "Main";
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference();
-    private RadioGroup rgPlayers;
+    private RadioGroup rgModes;
     private Button btGo;
     private Button btMap;
     private EditText etMoney;
@@ -56,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
     private boolean isMapSelected;
     private FirebaseUser user;
     private String uid;
-    private boolean isGuest = false;
+    private String myMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +49,10 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
         setContentView(R.layout.activity_main);
 
         Resources res = getResources();
-        int players = res.getInteger(R.integer.players);
+        String[] mArray;
+        mArray = getResources().getStringArray(R.array.mode);
 
-        rgPlayers = (findViewById(R.id.rgPlayers));
+        rgModes = findViewById(R.id.rgModes);
         btGo = findViewById(R.id.btGo);
         btMap = findViewById(R.id.btMap);
         etMoney = findViewById(R.id.etMoney);
@@ -81,13 +67,12 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
             }
         }
         // add players radio buttons
-        for (int i = 1; i <= players; i++) {
-            RadioButton rbPlayer = new RadioButton(this);
-            rbPlayer.setId(i-1);
-            rbPlayer.setText(Integer.toString(i));
-            rgPlayers.addView(rbPlayer);
+        for (int i = 0; i < mArray.length; i++) {
+            RadioButton rbMode = new RadioButton(this);
+            rbMode.setId(i);
+            rbMode.setText(mArray[i]);
+            rgModes.addView(rbMode);
         }
-
         // add transportation spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.transportations, android.R.layout.simple_spinner_item);
@@ -97,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
         spTransportation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "你選的是" + spTransportation.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "You selected " + spTransportation.getItemAtPosition(position), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -117,9 +102,9 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!spMap.getItemAtPosition(position).equals("Please select a map")) {
                     isMapSelected = true;
+                    myMap = spMap.getItemAtPosition(position).toString();
                     Intent goToMap = new Intent(MainActivity.this, MapsActivity.class);
-
-                    goToMap.putExtra("MAP", spMap.getItemAtPosition(position).toString());
+                    goToMap.putExtra("MAP", myMap);
                     startActivity(goToMap);
                 }
             }
@@ -140,16 +125,16 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
         btMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int players = rgPlayers.getCheckedRadioButtonId();
+                int mode = rgModes.getCheckedRadioButtonId();
                 String inviteCode = etCode.getText().toString();
                 String warning = "";
                 if (etNickname.getText().toString().equals("")) {
                     warning += "Please enter your nickname!";
                 }
-                if (players == -1) {
-                    warning += "\nPlease select the number of players!";
+                if (mode == -1) {
+                    warning += "\nPlease select the play mode!";
                 }
-                if (players == 1 && inviteCode.equals("")) {
+                if (mode == 1 && inviteCode.equals("")) {
                     warning += "\nPlease enter a invite code";
                 }
                 if (!isMapSelected) {
@@ -160,25 +145,26 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
                 }
                 Toast.makeText(MainActivity.this, warning, Toast.LENGTH_SHORT).show();
 
-                if (!etNickname.getText().toString().equals("") && players != -1 && (isMapSelected) && !etMoney.getText().toString().equals("")) {
+                if (!etNickname.getText().toString().equals("") && (mode != -1) && ((mode == 1) && !inviteCode.equals("")) && (isMapSelected) && !etMoney.getText().toString().equals("")) {
                     Class<?> cls = null;
                     double iniMoney = Double.parseDouble(etMoney.getText().toString());
                     User user1 = new User(uid, 0, 0, iniMoney);
                     User user2 = null;
                     MapJsonResponse myJson = new MapJsonResponse(MainActivity.this);
-                    String jsonResponse = myJson.loadJSONFromAsset();
+                    String jsonResponse = myJson.loadJSONFromAsset(myMap);
                     Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
-                    if (players == 0) {
+                    if (mode == 0) {
                         user2 = new User("computer", 0, 0, iniMoney);
                         cls = GameSingleActivity.class;
                     }
-                    if (players == 1 && !etCode.getText().toString().equals("")) {
+                    if (mode == 1 && !etCode.getText().toString().equals("")) {
                         user2 = new User("waiting", 0, 0, iniMoney);
                         cls = GameMultiActivity.class;
                     }
                     myRef.child(etNickname.getText().toString()).child("inviteCode").setValue(etCode.getText().toString());
                     myRef.child(etNickname.getText().toString()).child("user1").setValue(user1);
                     myRef.child(etNickname.getText().toString()).child("user2").setValue(user2);
+                    myRef.child(etNickname.getText().toString()).child("location").setValue(myMap);
                     for (int i = 0; i < mapJsonResponse.length; i++) {
                         myRef.child(etNickname.getText().toString()).child("maps").child(Integer.toString(i)).setValue(mapJsonResponse[i]);
                         myRef.child(etNickname.getText().toString()).child("maps").child(Integer.toString(i)).child("owner").setValue("");
@@ -187,6 +173,8 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
                     Intent goToGame = new Intent(MainActivity.this, cls);
                     goToGame.putExtra("HOST", etNickname.getText().toString());
                     goToGame.putExtra("INVITECODE", etCode.getText().toString());
+                    goToGame.putExtra("MAP", myMap);
+                    goToGame.putExtra("ISHOST", true);
                     startActivity(goToGame);
                 }
             }
@@ -197,14 +185,30 @@ public class MainActivity extends AppCompatActivity implements InvitedDialog.Inv
     public void onDialogPositiveClick(String hostname, String inviteCode) {
         final String hname = hostname;
         final String icode = inviteCode;
+        myRef.child(hname).child("location").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myMap = dataSnapshot.getValue(String.class);
+                Toast.makeText(MainActivity.this, myMap, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Error trying to get invite code" + databaseError);
+            }
+        });
         myRef.child(hostname).child("inviteCode").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 if (value.equals(icode)) {
-                    Intent goToGuest = new Intent(MainActivity.this, GameGuestActivity.class);
-                    goToGuest.putExtra("HOST", hname);
-                    startActivity(goToGuest);
+
+                    Intent goToMulti = new Intent(MainActivity.this, GameMultiActivity.class);
+                    goToMulti.putExtra("HOST", hname);
+                    goToMulti.putExtra("MAP", myMap);
+                    goToMulti.putExtra("ISHOST", false);
+
+                    startActivity(goToMulti);
                 }
             }
 

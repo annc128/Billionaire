@@ -64,6 +64,7 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
     protected String locationProvider;
     protected String uid;
     protected String host;
+    static protected String myMap = "???";
 
     protected static String TAG = "MAP";
     protected List<Map> listMaps;
@@ -72,6 +73,11 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_base);
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference();
+        host = getIntent().getStringExtra("HOST");
+
+        myMap = getIntent().getStringExtra("MAP");
         findView();
         methodRequiresPermission();
         attachCharacter();
@@ -82,14 +88,11 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
                 uid = profile.getUid();
             }
         }
-
-        host = getIntent().getStringExtra("HOST");
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
         ref = database.getReference();
 
 
         setValuesToView();
+
         constraintSet = new ConstraintSet();
         ibtDice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -189,9 +192,8 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
 
     private void setValuesToView() {
         MapJsonResponse myJson = new MapJsonResponse(GameBaseActivity.this);
-        String jsonResponse = myJson.loadJSONFromAsset();
+        String jsonResponse = myJson.loadJSONFromAsset(myMap);
         Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
-
         listMaps = Arrays.asList(mapJsonResponse);
         tv1.setText(listMaps.get(0).getName());
         tv2.setText(listMaps.get(1).getName());
@@ -206,18 +208,18 @@ public abstract class GameBaseActivity extends AppCompatActivity implements BuyD
     }
 
     private void attachCharacter() {
-        ivMe = new ImageView(this);
-        ivMe.setImageResource(R.drawable.hello);
-        ivMe.setId(R.id.ivMe);
-        gameCL.addView(ivMe);
-        ivMe.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
-        ivMe.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
         ivEnemy = new ImageView(GameBaseActivity.this);
         ivEnemy.setImageResource(R.drawable.pig);
         ivEnemy.setId(R.id.ivEnemy);
         gameCL.addView(ivEnemy);
         ivEnemy.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
         ivEnemy.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
+        ivMe = new ImageView(this);
+        ivMe.setImageResource(R.drawable.hello);
+        ivMe.setId(R.id.ivMe);
+        gameCL.addView(ivMe);
+        ivMe.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
+        ivMe.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
     }
 
     protected double truncateDouble(double input) {

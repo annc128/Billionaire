@@ -23,10 +23,10 @@ public class MapJsonResponse {
         return responseObject;
     }
 
-    public String loadJSONFromAsset() {
+    public String loadJSONFromAsset(String fileName) {
         String json = null;
         try {
-            InputStream is = context.getAssets().open("maps.json");
+            InputStream is = context.getAssets().open(fileName + ".json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -39,17 +39,17 @@ public class MapJsonResponse {
         return json;
     }
 
-    private void mapParsedResponse() {
-        String jsonResponse = loadJSONFromAsset();
-        Map[] mapJsonResponse = parseJSON(jsonResponse);
-
-        List<Map> listMaps = Arrays.asList(mapJsonResponse);
-
-        for (Map map : listMaps) {
-            System.out.println("technicaljungle ---- Name -> " + map.getName()
-                    + " -- Latitude -- " + map.getLatitude() + "--- Longitude --" + map.getLongitude());
-        }
-    }
+//    private void mapParsedResponse() {
+//        String jsonResponse = loadJSONFromAsset();
+//        Map[] mapJsonResponse = parseJSON(jsonResponse);
+//
+//        List<Map> listMaps = Arrays.asList(mapJsonResponse);
+//
+//        for (Map map : listMaps) {
+//            System.out.println("technicaljungle ---- Name -> " + map.getName()
+//                    + " -- Latitude -- " + map.getLatitude() + "--- Longitude --" + map.getLongitude());
+//        }
+//    }
 
 
 }

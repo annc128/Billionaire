@@ -22,14 +22,40 @@ public class GameMultiActivity extends GameBaseActivity {
     User user_enemy = new User();
     private String inviteCode;
     private boolean isWaiting;
+    private boolean isHost;
+    private String refMe;
+    private String refEnemy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // setContentView(R.layout.activity_game_multi);
+        isHost = getIntent().getBooleanExtra("ISHOST", false);
         inviteCode = getIntent().getStringExtra("INVITECODE");
-        checkGuestIn();
-        if (isWaiting) {
+        myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                if (value.equals("waiting")) {
+                    isWaiting = true;
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
+
+        if (isHost) {
+            refMe = "user1";
+            refEnemy = "user2";
+        } else {
+            refMe = "user2";
+            refEnemy = "user1";
+        }
+
+        if (isHost && isWaiting) {
+            checkGuestIn();
             Intent intent = new Intent(Intent.ACTION_SENDTO);
             intent.setData(Uri.parse("mailto:")); // only email apps should handle this
             intent.putExtra(Intent.EXTRA_SUBJECT, "Let's play billionaire");
@@ -64,8 +90,8 @@ public class GameMultiActivity extends GameBaseActivity {
                 if (isWaiting) {
                     checkGuestIn();
                 }
-                myRef.child(host).child("user1").child("latitude").setValue(location.getLatitude());
-                myRef.child(host).child("user1").child("longitude").setValue(location.getLongitude());
+                myRef.child(host).child(refMe).child("latitude").setValue(location.getLatitude());
+                myRef.child(host).child(refMe).child("longitude").setValue(location.getLongitude());
                 position(location);
                 enemyPosition();
 
@@ -115,7 +141,7 @@ public class GameMultiActivity extends GameBaseActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String value = dataSnapshot.getValue(String.class);
                     if (!value.equals("") && !value.equals(uid)) {
-                        myRef.child(host).child("user1").addValueEventListener(new ValueEventListener() {
+                        myRef.child(host).child(refMe).addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 User value = dataSnapshot.getValue(User.class);
@@ -123,7 +149,7 @@ public class GameMultiActivity extends GameBaseActivity {
                                 double money_now = value.getMoney() - (double) 100;
                                 Log.d(TAG, Double.toString(money_now));
                                 value.setMoney(money_now);
-                                myRef.child(host).child("user1").setValue(value);
+                                myRef.child(host).child(refMe).setValue(value);
                             }
 
                             @Override
@@ -144,7 +170,7 @@ public class GameMultiActivity extends GameBaseActivity {
 
     @Override
     protected void enemyPosition() {
-        myRef.child(host).child("user2").addValueEventListener(new ValueEventListener() {
+        myRef.child(host).child(refEnemy).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 user_enemy = dataSnapshot.getValue(User.class);
@@ -158,6 +184,8 @@ public class GameMultiActivity extends GameBaseActivity {
         for (int i = 0; i < listMaps.size(); i++) {
             if (user_enemy.getLatitude() == 0 && user_enemy.getLongitude() == 0) {
                 ivEnemy.setVisibility(View.INVISIBLE);
+            } else {
+                ivEnemy.setVisibility(View.VISIBLE);
             }
             if (truncateDouble(user_enemy.getLatitude()) == truncateDouble(listMaps.get(i).getLatitude()) && truncateDouble(user_enemy.getLongitude()) == truncateDouble(listMaps.get(i).getLongitude())) {
                 enemyLocation = i;
@@ -167,7 +195,7 @@ public class GameMultiActivity extends GameBaseActivity {
     }
 
     private void checkGuestIn() {
-        myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
+        myRef.child(host).child(refEnemy).child("userID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);

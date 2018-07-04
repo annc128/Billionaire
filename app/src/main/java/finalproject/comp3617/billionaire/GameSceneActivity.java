@@ -296,7 +296,7 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
 
     private void setValuesToView() {
         MapJsonResponse myJson = new MapJsonResponse(GameSceneActivity.this);
-        String jsonResponse = myJson.loadJSONFromAsset();
+        String jsonResponse = myJson.loadJSONFromAsset("ya"); //error
         Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
 
         listMaps = Arrays.asList(mapJsonResponse);

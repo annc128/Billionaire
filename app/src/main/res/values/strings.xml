@@ -20,8 +20,12 @@
 
     <string-array name="maps">
         <item>Please select a map</item>
-        <item>Downtown Vancouver</item>
-        <item>Skytrain route</item>
+        <item>Canada Line(Vancouver, Canada)</item>
+        <item>Wenhu Line(Taipei, Taiwan)</item>
+    </string-array>
+    <string-array name="mode">
+        <item>Single Player</item>
+        <item>Multi Players</item>
     </string-array>
 
     <string name="loading">Loading…</string>
@@ -35,4 +39,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_game_guest">GameGuestActivity</string>
+    <string name="nickname">Nickname</string>
+    <string name="invitecode">InviteCode</string>
+    <string name="play_mode">Play Mode</string>
 </resources>

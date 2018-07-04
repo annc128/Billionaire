@@ -29,15 +29,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private boolean isStartPointSet = false;
+    private String myMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        myMap = getIntent().getStringExtra("MAP");
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
     }
 
@@ -73,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (googleError != null)
             Log.d("MyApp", googleError);
         MapJsonResponse myJson = new MapJsonResponse(MapsActivity.this);
-        String jsonResponse = myJson.loadJSONFromAsset();
+        String jsonResponse = myJson.loadJSONFromAsset(myMap);
         Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
 
         List<Map> listMaps = Arrays.asList(mapJsonResponse);

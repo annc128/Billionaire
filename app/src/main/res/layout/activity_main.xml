@@ -3,102 +3,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="@dimen/text_view_size"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/tvNickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/nickname" />
 
-    <LinearLayout
+    <EditText
+        android:id="@+id/etNickname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/nickname"
+        android:inputType="textPersonName" />
+
+    <TextView
+        android:id="@+id/tvMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/play_mode" />
+
+    <RadioGroup
+        android:id="@+id/rgModes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tvCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/invitecode" />
+
+    <EditText
+        android:id="@+id/etCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/invitecode"
+        android:inputType="textPassword" />
+
+    <TextView
+        android:id="@+id/tvMoney"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/money" />
+
+    <EditText
+        android:id="@+id/etMoney"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/currency"
+        android:inputType="numberDecimal" />
+
+    <TextView
+        android:id="@+id/tvTransportation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/transportation" />
+
+    <Spinner
+        android:id="@+id/spTransportation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_view_size"
+        android:text="@string/map" />
+
+    <Spinner
+        android:id="@+id/spMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dialog" />
+
+    <Button
+        android:id="@+id/btGo"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/go"
+        tools:layout_width="wrap_content" />
 
-        <EditText
-            android:id="@+id/etNickname"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Nickname"
-            android:inputType="textPersonName" />
+    <Button
+        android:id="@+id/btMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/map" />
 
-        <TextView
-            android:id="@+id/tvPlayers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/players" />
-
-        <RadioGroup
-            android:id="@+id/rgPlayers"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-        </RadioGroup>
-
-        <EditText
-            android:id="@+id/etCode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="InviteCode"
-            android:inputType="textPassword" />
-
-        <TextView
-            android:id="@+id/tvMoney"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/money" />
-
-        <EditText
-            android:id="@+id/etMoney"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/currency"
-            android:inputType="numberDecimal" />
-
-        <TextView
-            android:id="@+id/tvTransportation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/transportation" />
-
-        <Spinner
-            android:id="@+id/spTransportation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/tvMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/map" />
-
-        <Spinner
-            android:id="@+id/spMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dialog" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="380dp"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/btGo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/go"
-            tools:layout_width="wrap_content" />
-
-        <Button
-            android:id="@+id/btMap"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/map" />
-    </LinearLayout>
 
 </LinearLayout>

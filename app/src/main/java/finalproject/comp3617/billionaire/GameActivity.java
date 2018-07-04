@@ -110,7 +110,7 @@ public class GameActivity extends AppCompatActivity implements BuyDialog.BuyDial
             tryToGetLocationValue();
         }
         MapJsonResponse myJson = new MapJsonResponse(GameActivity.this);
-        String jsonResponse = myJson.loadJSONFromAsset();
+        String jsonResponse = myJson.loadJSONFromAsset("ya"); // error
         Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
 
         listMaps = Arrays.asList(mapJsonResponse);
