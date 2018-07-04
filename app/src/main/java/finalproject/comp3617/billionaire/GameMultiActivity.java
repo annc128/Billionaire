@@ -72,6 +72,7 @@ public class GameMultiActivity extends GameBaseActivity {
                 // Check if the player is at the starting point
                 if (starting == true && destination != nowLocation && !isWaiting) {
                     tvInfo.setText(listMaps.get(destination).getName());
+                    ibtDice.setVisibility(View.INVISIBLE);
                     tvInfo.setVisibility(View.VISIBLE);
                 } else if (starting == true && destination == nowLocation) {
                     Toast.makeText(GameMultiActivity.this, "Ready to go!", Toast.LENGTH_SHORT).show();
@@ -98,6 +99,8 @@ public class GameMultiActivity extends GameBaseActivity {
                             Log.w(TAG, "Failed to read value.", error.toException());
                         }
                     });
+                    ibtDice.setVisibility(View.VISIBLE);
+                    tvInfo.setVisibility(View.INVISIBLE);
                     enemyPosition();
                 }
             }

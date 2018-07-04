@@ -26,8 +26,8 @@ public class GameGuestActivity extends GameBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        myRef.child(host).child("user2").child("userID").setValue(uid);
         // setContentView(R.layout.activity_game_multi);
-        inviteCode = getIntent().getStringExtra("INVITECODE");
 
     }
 
@@ -59,8 +59,9 @@ public class GameGuestActivity extends GameBaseActivity {
                 enemyPosition();
 
                 // Check if the player is at the starting point
-                if (starting == true && destination != nowLocation && !isWaiting) {
+                if (starting == true && destination != nowLocation) {
                     tvInfo.setText(listMaps.get(destination).getName());
+                    ibtDice.setVisibility(View.INVISIBLE);
                     tvInfo.setVisibility(View.VISIBLE);
                 } else if (starting == true && destination == nowLocation) {
                     Toast.makeText(GameGuestActivity.this, "Ready to go!", Toast.LENGTH_SHORT).show();
@@ -86,7 +87,10 @@ public class GameGuestActivity extends GameBaseActivity {
                         public void onCancelled(DatabaseError error) {
                             Log.w(TAG, "Failed to read value.", error.toException());
                         }
+
                     });
+                    ibtDice.setVisibility(View.VISIBLE);
+                    tvInfo.setVisibility(View.INVISIBLE);
                     enemyPosition();
                 }
             }
@@ -142,9 +146,9 @@ public class GameGuestActivity extends GameBaseActivity {
             }
         });
         for (int i = 0; i < listMaps.size(); i++) {
-            if (user_enemy.getLatitude() == 0 && user_enemy.getLongitude() == 0) {
-                ivEnemy.setVisibility(View.INVISIBLE);
-            }
+//            if (user_enemy.getLatitude() == 0 && user_enemy.getLongitude() == 0) {
+//                ivEnemy.setVisibility(View.INVISIBLE);
+//            }
             if (truncateDouble(user_enemy.getLatitude()) == truncateDouble(listMaps.get(i).getLatitude()) && truncateDouble(user_enemy.getLongitude()) == truncateDouble(listMaps.get(i).getLongitude())) {
                 enemyLocation = i;
                 moveCharacter(ivEnemy, i);

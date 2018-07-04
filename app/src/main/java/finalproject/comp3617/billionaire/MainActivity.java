@@ -30,13 +30,21 @@ import com.google.firebase.appinvite.FirebaseAppInvite;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = MainActivity.class.getSimpleName();
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements InvitedDialog.InviteInputListener {
+    private static final String TAG = "Main";
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference myRef = database.getReference();
     private RadioGroup rgPlayers;
     private Button btGo;
     private Button btMap;
@@ -48,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean isMapSelected;
     private FirebaseUser user;
     private String uid;
+    private boolean isGuest = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,44 +133,8 @@ public class MainActivity extends AppCompatActivity {
         btGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int players = rgPlayers.getCheckedRadioButtonId();
-                MapJsonResponse myJson = new MapJsonResponse(MainActivity.this);
-                String jsonResponse = myJson.loadJSONFromAsset();
-                Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("masters");
-
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null) {
-                    for (UserInfo profile : user.getProviderData()) {
-
-                        if (players == 0) {
-                            myRef.child("competitor").setValue("computer");
-                        }
-                        if (players == 1) {
-                            myRef.child("competitor").setValue("waiting");
-                            myRef.child("competitor").child("latitude").setValue("");
-                            myRef.child("competitor").child("longitude").setValue("");
-                        }
-                        Log.d("database", Integer.toString(rgPlayers.getCheckedRadioButtonId()));
-                        // UID specific to the provider
-                        String uid = profile.getUid();
-                        myRef.child("ID").setValue(uid);
-                        for (int i = 0; i < mapJsonResponse.length; i++) {
-                            myRef.child("maps").child(Integer.toString(i)).setValue(mapJsonResponse[i]);
-                            myRef.child("maps").child(Integer.toString(i)).child("owner").setValue("");
-                        }
-
-                    }
-                }
-                if (players != -1) {
-                    Intent goToGame = new Intent(MainActivity.this, GameActivity.class);
-                    startActivity(goToGame);
-                } else {
-                    Toast.makeText(MainActivity.this, "Please select the number of players!", Toast.LENGTH_SHORT).show();
-
-                }
-
+                InvitedDialog dialog = new InvitedDialog();
+                dialog.show(getFragmentManager(), "inviteDialog");
             }
         });
         btMap.setOnClickListener(new View.OnClickListener() {
@@ -195,8 +168,6 @@ public class MainActivity extends AppCompatActivity {
                     MapJsonResponse myJson = new MapJsonResponse(MainActivity.this);
                     String jsonResponse = myJson.loadJSONFromAsset();
                     Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
-                    FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    DatabaseReference myRef = database.getReference(etNickname.getText().toString());
                     if (players == 0) {
                         user2 = new User("computer", 0, 0, iniMoney);
                         cls = GameSingleActivity.class;
@@ -205,12 +176,12 @@ public class MainActivity extends AppCompatActivity {
                         user2 = new User("waiting", 0, 0, iniMoney);
                         cls = GameMultiActivity.class;
                     }
-                    myRef.child("inviteCode").setValue(etCode.getText().toString());
-                    myRef.child("user1").setValue(user1);
-                    myRef.child("user2").setValue(user2);
+                    myRef.child(etNickname.getText().toString()).child("inviteCode").setValue(etCode.getText().toString());
+                    myRef.child(etNickname.getText().toString()).child("user1").setValue(user1);
+                    myRef.child(etNickname.getText().toString()).child("user2").setValue(user2);
                     for (int i = 0; i < mapJsonResponse.length; i++) {
-                        myRef.child("maps").child(Integer.toString(i)).setValue(mapJsonResponse[i]);
-                        myRef.child("maps").child(Integer.toString(i)).child("owner").setValue("");
+                        myRef.child(etNickname.getText().toString()).child("maps").child(Integer.toString(i)).setValue(mapJsonResponse[i]);
+                        myRef.child(etNickname.getText().toString()).child("maps").child(Integer.toString(i)).child("owner").setValue("");
                     }
 
                     Intent goToGame = new Intent(MainActivity.this, cls);
@@ -221,5 +192,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onDialogPositiveClick(String hostname, String inviteCode) {
+        final String hname = hostname;
+        final String icode = inviteCode;
+        myRef.child(hostname).child("inviteCode").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String value = dataSnapshot.getValue(String.class);
+                if (value.equals(icode)) {
+                    Intent goToGuest = new Intent(MainActivity.this, GameGuestActivity.class);
+                    goToGuest.putExtra("HOST", hname);
+                    startActivity(goToGuest);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d(TAG, "Error trying to get invite code" + databaseError);
+            }
+        });
+    }
+
 
 }
