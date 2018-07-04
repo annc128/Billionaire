@@ -11,6 +11,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <EditText
+            android:id="@+id/etNickname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Nickname"
+            android:inputType="textPersonName" />
+
         <TextView
             android:id="@+id/tvPlayers"
             android:layout_width="match_parent"
@@ -25,6 +33,14 @@
 
         </RadioGroup>
 
+        <EditText
+            android:id="@+id/etCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="InviteCode"
+            android:inputType="textPassword" />
+
         <TextView
             android:id="@+id/tvMoney"
             android:layout_width="match_parent"
@@ -38,6 +54,7 @@
             android:ems="10"
             android:hint="@string/currency"
             android:inputType="numberDecimal" />
+
         <TextView
             android:id="@+id/tvTransportation"
             android:layout_width="match_parent"

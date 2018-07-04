@@ -319,5 +319,23 @@
         app:layout_constraintTop_toBottomOf="@+id/iv2"
         app:srcCompat="@drawable/dice" />
 
+    <TextView
+        android:id="@+id/tvInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="26dp"
+        android:layout_marginEnd="130dp"
+        android:layout_marginLeft="130dp"
+        android:layout_marginRight="130dp"
+        android:layout_marginStart="130dp"
+        android:layout_marginTop="26dp"
+        android:background="@null"
+        android:scaleType="fitXY"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/iv7"
+        app:layout_constraintEnd_toStartOf="@+id/iv5"
+        app:layout_constraintStart_toEndOf="@+id/iv10"
+        app:layout_constraintTop_toBottomOf="@+id/iv2" />
+
 
 </android.support.constraint.ConstraintLayout>

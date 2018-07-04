@@ -41,38 +41,37 @@ import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
 
-public class GameSceneActivity extends AppCompatActivity implements BuyDialog.BuyDialogListener, EasyPermissions.PermissionCallbacks {
+public abstract class GameBaseActivity extends AppCompatActivity implements BuyDialog.BuyDialogListener, EasyPermissions.PermissionCallbacks {
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private FirebaseDatabase database;
-    private DatabaseReference myRef;
-    private DatabaseReference ref;
-    private FirebaseUser user;
-    private ConstraintLayout gameCL;
-    private ConstraintSet constraintSet;
-    private ImageView ivMe, ivEnemy;
-    private ImageButton ibtDice;
-    private TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7, tv8, tv9, tv10, tvInfo;
-    private int destination = 0;
-    private int lastLocation;
-    private int nowLocation = -1;
-    private int enemyLocation = 0;
-    private int enemyLastLocation = 0;
-    private double myMoney = 1000;
-    private double enemyMoney = 1000;
-    private boolean starting = true;
-    private LocationManager locationManager;
-    private String locationProvider;
-    private String uid;
-    private String host;
-    private String inviteCode;
-    private static String TAG = "MAP";
-    private List<Map> listMaps;
+    protected FirebaseDatabase database;
+    protected DatabaseReference myRef;
+    protected DatabaseReference ref;
+    protected FirebaseUser user;
+    protected ConstraintLayout gameCL;
+    protected ConstraintSet constraintSet;
+    protected ImageView ivMe, ivEnemy;
+    protected ImageButton ibtDice;
+    protected TextView tv1, tv2, tv3, tv4, tv5, tv6, tv7, tv8, tv9, tv10, tvInfo;
+    protected int destination = 0;
+    protected int lastLocation;
+    protected int nowLocation = -1;
+    protected int enemyLocation = 0;
+    protected int enemyLastLocation = 0;
+    protected double myMoney = 1000;
+    protected double enemyMoney = 1000;
+    protected boolean starting = true;
+    protected LocationManager locationManager;
+    protected String locationProvider;
+    protected String uid;
+    protected String host;
+
+    protected static String TAG = "MAP";
+    protected List<Map> listMaps;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_base);
-        host = getIntent().getStringExtra("HOST");
-        inviteCode = getIntent().getStringExtra("INVITECODE");
         findView();
         methodRequiresPermission();
         attachCharacter();
@@ -83,43 +82,13 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
                 uid = profile.getUid();
             }
         }
+
+        host = getIntent().getStringExtra("HOST");
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
         ref = database.getReference();
 
-        myRef.child(host).child("user2").child("userID").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                if (value.equals("computer")) {
-                    enemyPosition();
-                } else if (value.equals("waiting")) {
-                    Intent intent = new Intent(Intent.ACTION_SENDTO);
-                    intent.setData(Uri.parse("mailto:")); // only email apps should handle this
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Let's play billionaire");
-                    intent.putExtra(Intent.EXTRA_TEXT, "Host Name:" + host + "\nInvite Code:" + inviteCode);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
-                    }
-                    ibtDice.setVisibility(View.INVISIBLE);
-                    tvInfo.setText("waiting for another player!");
-                    tvInfo.setVisibility(View.VISIBLE);
-                } else {
-                    if (uid == value) {
-                        ref = database.getReference(host).child("user2");
-                    } else {
-                        ref = database.getReference(host).child("user1");
-                    }
-                    ibtDice.setVisibility(View.VISIBLE);
-                    tvInfo.setVisibility(View.INVISIBLE);
-                }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.w(TAG, "Failed to read value.", error.toException());
-            }
-        });
         setValuesToView();
         constraintSet = new ConstraintSet();
         ibtDice.setOnClickListener(new View.OnClickListener() {
@@ -130,7 +99,7 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
                 destination = nowLocation + random.nextInt(6) + 1;
                 destination = checkIfNull(destination);
 
-                Toast.makeText(GameSceneActivity.this, "your destination is " + listMaps.get(destination).getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(GameBaseActivity.this, "your destination is " + listMaps.get(destination).getName(), Toast.LENGTH_SHORT).show();
                 ibtDice.setVisibility(View.INVISIBLE);
                 tvInfo.setText(listMaps.get(destination).getName());
                 tvInfo.setVisibility(View.VISIBLE);
@@ -167,6 +136,7 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
             new AppSettingsDialog.Builder(this).build().show();
         }
     }
+
     @Override
     public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
         Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
@@ -196,87 +166,10 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
             Log.d(TAG, "onCreate: location");
         }
         //監視地理位置變化
-        locationManager.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(locationProvider, 0, 0, createLocationListener());
     }
 
-    LocationListener locationListener = new LocationListener() {
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle arg2) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-            Log.d(TAG, "onProviderEnabled: " + provider + ".." + Thread.currentThread().getName());
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-            Log.d(TAG, "onProviderDisabled: " + provider + ".." + Thread.currentThread().getName());
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
-            ref.child("latitude").setValue(location.getLatitude());
-            ref.child("longitude").setValue(location.getLongitude());
-            position(location);
-            enemyPosition();
-
-            // Check if the player is at the starting point
-            if (starting == true && destination != nowLocation) {
-                tvInfo.setText(listMaps.get(destination).getName());
-                tvInfo.setVisibility(View.VISIBLE);
-            } else if (starting == true && destination == nowLocation) {
-                Toast.makeText(GameSceneActivity.this, "Ready to go!", Toast.LENGTH_SHORT).show();
-                ibtDice.setVisibility(View.VISIBLE);
-                tvInfo.setVisibility(View.INVISIBLE);
-                starting = false;
-            }
-
-            if (destination == nowLocation && destination != 0 && !ibtDice.isShown()) {
-                checkToll("me");
-                myRef.child(host).child("maps").child(Integer.toString(nowLocation)).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String value = dataSnapshot.getValue(String.class);
-                        if (value.equals("")) {
-                            BuyDialog dialog = BuyDialog.instance("On sale");
-                            FragmentManager fm = getFragmentManager();
-                            dialog.show(fm, "BuyDialog");
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        Log.w(TAG, "Failed to read value.", error.toException());
-                    }
-                });
-
-                Random random = new Random();
-                ibtDice.setVisibility(View.VISIBLE);
-                tvInfo.setVisibility(View.INVISIBLE);
-                enemyLastLocation = enemyLocation;
-                enemyLocation += random.nextInt(6) + 1;
-                enemyLocation = checkIfNull(enemyLocation);
-                checkToll("pig");
-                myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String value = dataSnapshot.getValue(String.class);
-                        if (value.equals("")) {
-                            myRef.child(host).child("maps").child(Integer.toString(enemyLocation)).child("owner").setValue(uid);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        Log.w(TAG, "Failed to read value.", error.toException());
-                    }
-                });
-                enemyPosition();
-            }
-        }
-    };
+    protected abstract LocationListener createLocationListener();
 
     private void findView() {
         gameCL = findViewById(R.id.gameCl);
@@ -295,7 +188,7 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
     }
 
     private void setValuesToView() {
-        MapJsonResponse myJson = new MapJsonResponse(GameSceneActivity.this);
+        MapJsonResponse myJson = new MapJsonResponse(GameBaseActivity.this);
         String jsonResponse = myJson.loadJSONFromAsset();
         Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
 
@@ -319,7 +212,7 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
         gameCL.addView(ivMe);
         ivMe.getLayoutParams().height = (int) getResources().getDimension(R.dimen.imageview_height);
         ivMe.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
-        ivEnemy = new ImageView(GameSceneActivity.this);
+        ivEnemy = new ImageView(GameBaseActivity.this);
         ivEnemy.setImageResource(R.drawable.pig);
         ivEnemy.setId(R.id.ivEnemy);
         gameCL.addView(ivEnemy);
@@ -327,12 +220,12 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
         ivEnemy.getLayoutParams().width = (int) getResources().getDimension(R.dimen.imageview_width);
     }
 
-    private double truncateDouble(double input) {
+    protected double truncateDouble(double input) {
         BigDecimal bd = new BigDecimal(input);
         return bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
-    private void position(Location location) {
+    protected void position(Location location) {
         for (int i = 0; i < listMaps.size(); i++) {
             if (truncateDouble(location.getLatitude()) == truncateDouble(listMaps.get(i).getLatitude()) && truncateDouble(location.getLongitude()) == truncateDouble(listMaps.get(i).getLongitude())) {
                 nowLocation = i;
@@ -341,11 +234,9 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
         }
     }
 
-    private void enemyPosition() {
-        moveCharacter(ivEnemy, enemyLocation);
-    }
+    protected abstract void enemyPosition();
 
-    private void moveCharacter(ImageView im, int myId) {
+    protected void moveCharacter(ImageView im, int myId) {
         switch (myId) {
             case 0:
                 myId = R.id.tv1;
@@ -390,46 +281,16 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
         if (myId == R.id.tv10 && (!starting)) {
             try {
                 Thread.sleep(2000);
-                Toast.makeText(GameSceneActivity.this, "finished", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GameBaseActivity.this, "finished", Toast.LENGTH_SHORT).show();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void checkToll(final String person) {
-        int begin;
-        int now;
-        if (person.equals("me")) {
-            begin = lastLocation;
-            now = nowLocation;
-        } else {
-            begin = enemyLastLocation;
-            now = enemyLocation;
-        }
-        for (int i = begin; i <= now; i++) {
-            myRef.child(host).child("maps").child(Integer.toString(i)).child("owner").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String value = dataSnapshot.getValue(String.class);
-                    if (!value.equals("") && !value.equals(uid) && person.equals("me")) {
-                        myMoney -= 100;
-                        Log.d(TAG, Double.toString(myMoney));
-                    } else if (!value.equals("") && !value.equals("pig") && person.equals("pig")) {
-                        enemyMoney -= 100;
-                        Log.d(TAG, Double.toString(enemyMoney));
-                    }
-                }
+    protected abstract void checkToll(final String person);
 
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    Log.w(TAG, "Failed to read value.", error.toException());
-                }
-            });
-        }
-    }
-
-    private int checkIfNull(int value) {
+    protected int checkIfNull(int value) {
         if (value >= listMaps.size()) {
             value = listMaps.size() - 1;
         }
@@ -438,6 +299,22 @@ public class GameSceneActivity extends AppCompatActivity implements BuyDialog.Bu
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
+        myRef.child(host).child("user1").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User value = dataSnapshot.getValue(User.class);
+                Log.d(TAG, Double.toString(value.getMoney()));
+                double money_now = value.getMoney() - (double) 100;
+                Log.d(TAG, Double.toString(money_now));
+                value.setMoney(money_now);
+                myRef.child(host).child("user1").setValue(value);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.w(TAG, "Failed to read value.", error.toException());
+            }
+        });
         myRef.child(host).child("maps").child(Integer.toString(nowLocation)).child("owner").setValue(uid);
     }
 

@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -52,9 +54,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        String jsonResponse = loadJSONFromAsset();
-        Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
+        String googleError = null;
+        switch (MapsInitializer.initialize(MapsActivity.this)) { // or GooglePlayServicesUtil.isGooglePlayServicesAvailable(ctx)
+            case ConnectionResult.SERVICE_MISSING:
+                googleError = "Failed to connect to google mapping service: Service Missing";
+                break;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                googleError = "Failed to connect to google mapping service: Google Play services out of date. Service Version Update Required";
+                break;
+            case ConnectionResult.SERVICE_DISABLED:
+                googleError = "Failed to connect to google mapping service: Service Disabled. Possibly app is missing API key or is not a signed app permitted to use API key.";
+                break;
+            case ConnectionResult.SERVICE_INVALID:
+                googleError = "Failed to connect to google mapping service: Service Invalid. Possibly app is missing API key or is not a signed app permitted to use API key.";
+                break;
+//            case ConnectionResult.DATE_INVALID: googleError = "Failed to connect to google mapping service: Date Invalid"; break;
+        }
+        if (googleError != null)
+            Log.d("MyApp", googleError);
+        MapJsonResponse myJson = new MapJsonResponse(MapsActivity.this);
+        String jsonResponse = myJson.loadJSONFromAsset();
+        Map[] mapJsonResponse = myJson.parseJSON(jsonResponse);
 
         List<Map> listMaps = Arrays.asList(mapJsonResponse);
 
@@ -96,41 +116,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .setMessage("Do you want to set " + marker.getTitle() + " as end point?").create();
                     dialog.show();
                 }
-
-
                 return true;
             }
         });
     }
-
-    private void mapParsedResponse() {
-        String jsonResponse = loadJSONFromAsset();
-        Map[] mapJsonResponse = new MapJsonResponse().parseJSON(jsonResponse);
-
-        List<Map> listMaps = Arrays.asList(mapJsonResponse);
-
-        for (Map map : listMaps) {
-            System.out.println("technicaljungle ---- Name -> " + map.getName()
-                    + " -- Latitude -- " + map.getLatitude() + "--- Longitude --" + map.getLongitude());
-        }
-    }
-
-    //Load JSON file from Assets folder.
-    private String loadJSONFromAsset() {
-        String json = null;
-        try {
-            InputStream is = getAssets().open("maps.json");
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
-
-
 }

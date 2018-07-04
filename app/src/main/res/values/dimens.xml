@@ -2,4 +2,5 @@
 <resources>
     <dimen name="imageview_width">100dp</dimen>
     <dimen name="imageview_height">100dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
 </resources>
